@@ -1,29 +1,45 @@
-from main import *
-from products import *
+#from products import Product
+
 
 class Store:
-    def __init__(self):
-        self.store = []
+    def __init__(self, product_store):
+        self.product_store = product_store
+        for product in self.product_store:
+            print(f"class Store print // {product}")
+
 
     def add_product(self, product):
-        if product in self.store:
-            return
-        else:
-            self.store.append(product)
+        if product not in self.product_store:
+            self.product_store.append(product)
 
-    def remove_product(self, product, deactivate):
-        if product in self.store:
-            if self.deactivate == True:
-                self.store.remove(product)
 
-    def get_total_quantity(self, quantity):
+    def remove_product(self, product):
+        if product in self.product_store:
+            #if self.deactivate == True:
+           self.product_store.remove(product)
+
+
+    def get_total_quantity(self):
         total_quantity = 0
-        total_quantity = total_quantity + self.quantity
+        for product in self.product_store:
+            total_quantity += product.quantity
         return total_quantity
 
+
     def get_all_products(self):
-        pass
+        active_products = []
+        for product in self.product_store:
+            if product.is_active():
+                active_products.append(product)
+        return active_products
+
 
     def order(self, shopping_list):
-        pass
-
+        total_cost_order = 0
+        for product, quantity in shopping_list:
+            purchase_amount = product.buy(quantity)  # This handles the check
+            if purchase_amount is not None:
+                total_cost_order += purchase_amount
+            else:
+                print(f"Could not complete purchase for {product.name}.")
+        return f"Total amount: ${total_cost_order}"
