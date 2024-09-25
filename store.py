@@ -4,8 +4,8 @@
 class Store:
     def __init__(self, product_store):
         self.product_store = product_store
-        for product in self.product_store:
-            print(f"class Store print // {product}")
+        #for product in self.product_store:
+         #   print(f"{product}")
 
 
     def add_product(self, product):
