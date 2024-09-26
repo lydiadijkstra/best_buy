@@ -1,7 +1,8 @@
-#from products import Product
-
 
 class Store:
+    """
+    Represents a store that manages a collection of products
+    """
     def __init__(self, product_store):
         """
         Initializing the store_list for class Store
@@ -77,7 +78,7 @@ class Store:
             for product in self.product_store:
                 if product.name == product_name:
                     purchased_product = product.buy(quantity)
-                    if purchased_product is not None: # evt index [1], soll ja nur der quantity sein?
+                    if purchased_product is not None:
                         total_cost_order += purchased_product[1]
                     else:
                         print(f"Could not complete purchase for {product.name}.")

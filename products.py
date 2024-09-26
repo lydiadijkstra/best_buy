@@ -1,6 +1,8 @@
-from store import Store
 
 class Product:
+    """
+    Represents a product in the store
+    """
     def __init__(self, name, price, quantity):
         """
         Initializing the class parameters
@@ -46,8 +48,8 @@ class Product:
         Deactivates a product when is out of stock
         :return: True
         """
-        self.active == False
-        self.quantity = 0 # Set Product quantity to 0 for adding quantity not starting in negative numbers
+        self.active = False
+        self.quantity = 0 # Set quantity to 0 after deactivating
         return True
 
 
@@ -75,10 +77,9 @@ class Product:
         :return: buying quantity and total amount
         """
         if quantity > self.quantity:
-            print(f"Not enough {self.name} in stock. Requested: {quantity}. Available: {self.quantity}")
+            print(f"{self.name} requested: {quantity}. Available: {self.quantity}")
             return None
         else:
             self.quantity -= quantity
             total_purchase_amount = self.price * quantity
             return quantity, total_purchase_amount
-
