@@ -79,10 +79,6 @@ def convert_order(store, product_list):
             continue
 
         chosen_product = product_list[choice_product - 1]
-        purchase_amount = chosen_product.buy(choice_amount)
-        if purchase_amount is None:
-            print("Cannot complete your order due to insufficient stock")
-            continue
         product_and_quantity = (chosen_product.name, choice_amount)
         shopping_list.append(product_and_quantity)
     if shopping_list:
