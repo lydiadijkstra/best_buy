@@ -43,7 +43,7 @@ class Product:
             self.deactivate = True
 
 
-    def deactivate(self):
+    def deactivate_product(self):
         """
         Deactivates a product when is out of stock
         :return: True
@@ -80,6 +80,6 @@ class Product:
             print(f"{self.name} requested: {quantity}. Available: {self.quantity}")
             return None
         else:
-            self.quantity -= quantity
+            self.quantity -= quantity #deducts the buying quantity
             total_purchase_amount = self.price * quantity
             return quantity, total_purchase_amount

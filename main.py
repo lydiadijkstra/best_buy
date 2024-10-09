@@ -43,7 +43,9 @@ def convert_order(store, product_list):
     """
     numerate = 0
     print("\n")
-    for product in product_list:
+    active_products = store.get_all_products()
+    print("\nAvailable products:")
+    for product in active_products:
         numerate += 1
         print(f"\t{numerate}. {product}")
     print("\nWhen you want to finish order, enter empty text.")
@@ -78,7 +80,7 @@ def convert_order(store, product_list):
             print("Please enter a valid amount of items")
             continue
 
-        chosen_product = product_list[choice_product - 1]
+        chosen_product = active_products[choice_product - 1]
         product_and_quantity = (chosen_product.name, choice_amount)
         shopping_list.append(product_and_quantity)
     if shopping_list:

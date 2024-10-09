@@ -62,8 +62,9 @@ class Store:
         for product in self.product_store:
             if product.is_active():
                 active_products.append(product)
-            else:
-                print("No products listed")
+
+        if not active_products:
+            print("No products listed")
         return active_products
 
 
