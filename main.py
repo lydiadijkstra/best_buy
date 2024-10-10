@@ -99,7 +99,7 @@ def main():
                     Product("Google Pixel 7", price=500, quantity=250)
                     ]
     best_buy = Store(product_list)
-    start(best_buy, product_list)
+    #start(best_buy, product_list) # Run the store to order products
 
 
 if __name__ == "__main__":

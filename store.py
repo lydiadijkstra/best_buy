@@ -25,9 +25,13 @@ class Store:
         :param product: product to be added
         :return: updated list
         """
-        if product not in self.product_store:
-            self.product_store.append(product)
-            return self.product_store
+        if product and product.name and product.price >= 1 and product.quantity >= 1:
+            if product not in self.product_store:
+                self.product_store.append(product)
+                return self.product_store
+        else:
+            print("Invalid product. Cannot add to the store.")
+        return None
 
 
     def remove_product(self, product):

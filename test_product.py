@@ -3,26 +3,14 @@ from main import main
 from products import Product
 from store import Store
 
-"""
-get_quantity(): Ensure it returns the correct quantity for a product.
-set_quantity(): Check if the quantity is updated correctly and triggers deactivation if necessary.
-deactivate(): Verify that the product is deactivated and quantity is set to 0.
-is_active(): Test whether the function correctly identifies if a product is active or inactive.
-buy(): Ensure it correctly reduces the stock when a product is bought and calculates the total amount.
-Store Class:
 
-add_product(): Verify that new products are correctly added to the store.
-remove_product(): Ensure products are removed from the store when deactivated.
-get_total_quantity(): Check if it accurately calculates the total quantity of products in the store.
-get_all_products(): Verify that only active products are returned.
-order(): Test that the total cost of an order is correctly calculated and stock is deducted appropriately.
-"""
+# Test the functions in the products.py file
+
 
 def test_product_get_quantity():
     product = Product(name="MacBook Air M2", price=1450, quantity=100)
     product2 = Product(name="MacBook Air M2", price=1450, quantity=0)
     product3 = Product(name="MacBook Air M2", price=1450, quantity=-40)
-
 
     expected_outcome = "Product: MacBook Air M2\nQuantity: 100"
     expected_outcome2 = "Product: MacBook Air M2\nQuantity: 0"
@@ -43,12 +31,17 @@ def test_product_set_quantity():
     assert product.quantity == -50
     assert product.deactivate is True
 
+
 def test_product_buy():
     product = Product(name="MacBook Air M2", price=1450, quantity=100)
 
     assert product.buy(20) == (20, 29000)  # Expecting (quantity bought, total cost)
     assert product.quantity == 80
 
+
+# Test the functions in the store.py file
+
+"""
 def test_store_add_product():
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
                     Product("Bose QuietComfort Earbuds", price=250, quantity=500),
@@ -57,6 +50,7 @@ def test_store_add_product():
     product = Product(name="Test product", price=299, quantity=50)
     store.add_product(product)
     assert product in store.product_store
+"""
 
 def test_store_remove_product():
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
@@ -70,6 +64,7 @@ def test_store_remove_product():
     store.remove_product(product_to_remove) # Remove function to remove
     assert product_to_remove not in store.product_store
 
+
 def test_store_get_total_quantity():
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
@@ -82,8 +77,91 @@ def test_store_get_total_quantity():
     total_quantity = store.get_total_quantity()
     assert total_quantity == "Total of 750 items in store"
 
+
 def test_store_get_all_products():
-    pass
+    store = Store([Product("MacBook Air M2", price=1450, quantity=100),
+                   Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                   Product("Google Pixel 7", price=500, quantity=250)
+                   ])
+
+    products = store.get_all_products()
+    expected_products = [Product("MacBook Air M2", price=1450, quantity=100), Product("Bose QuietComfort Earbuds", price=250, quantity=500), Product("Google Pixel 7", price=500, quantity=250)]
+    assert len(products) == len(expected_products)
+
+    store.product_store[0].deactivate_product()
+    products = store.get_all_products()
+    expected_products = [Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                         Product("Google Pixel 7", price=500, quantity=250)]
+    assert len(products) == len(expected_products)
+
 
 def test_store_order():
-    pass
+    """
+    Test function for ordering products and deducting quantity.
+    Test deactivation when quantity reaches 0
+    Test that order is not proceeded when buying-quantity is bigger than warehouse quantity
+    :return:
+    """
+    store = Store([Product("MacBook Air M2", price=1450, quantity=100),
+                   Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                   Product("Google Pixel 7", price=500, quantity=250)
+                   ])
+
+    result = store.order([("MacBook Air M2", 2)])
+    assert result == "Total amount: $2900"
+
+    store.order([("MacBook Air M2", 98)]) # Buy total amount
+    products = store.get_all_products()
+    assert len(products) == 2 # Check if product was deactivated
+
+    store.order([("Bose QuietComfort Earbuds", 600)])  # Buy total amount
+    products = store.get_all_products()
+    assert len(products) == 2  # Check if order was blocked, same amount of products
+
+
+def test_store_add_product():
+    """
+    Test function for adding valid and invalid products
+    """
+    product_list = [Product("MacBook Air M2", price=1450, quantity=100),
+                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                    Product("Google Pixel 7", price=500, quantity=250)
+                    ]
+    best_buy = Store(product_list)
+
+    # Add qualified product:
+    best_buy.add_product(Product("testproduct", price=1450, quantity=100))
+    products = best_buy.get_all_products()
+    expected_products = [Product(name="MacBook Air M2", price=1450, quantity=100),
+                         Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                         Product("Google Pixel 7", price=500, quantity=250),
+                         Product("testproduct", price=1450, quantity=100)]
+    assert len(products) == len(expected_products)
+
+    # Add unqualified product - empty name:
+    best_buy.add_product(Product("", price=1, quantity=103847))
+    products = best_buy.get_all_products()
+    expected_products = [Product(name="MacBook Air M2", price=1450, quantity=100),
+                         Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                         Product("Google Pixel 7", price=500, quantity=250),
+                         Product("testproduct", price=1450, quantity=100)]
+    assert len(products) == len(expected_products)
+
+    # Add unqualified product - negative price:
+    best_buy.add_product(Product("test_object", price=-11, quantity=103847))
+    products = best_buy.get_all_products()
+    expected_products = [Product(name="MacBook Air M2", price=1450, quantity=100),
+                         Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                         Product("Google Pixel 7", price=500, quantity=250),
+                         Product("testproduct", price=1450, quantity=100)]
+    assert len(products) == len(expected_products)
+
+    # Add unqualified product - negative quantity:
+    best_buy.add_product(Product("test_object", price=11, quantity=-1))
+    products = best_buy.get_all_products()
+    expected_products = [Product(name="MacBook Air M2", price=1450, quantity=100),
+                         Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                         Product("Google Pixel 7", price=500, quantity=250),
+                         Product("testproduct", price=1450, quantity=100)]
+    assert len(products) == len(expected_products)
+
