@@ -1,4 +1,4 @@
-from products import Product
+from products import Product, NonStockedProduct, LimitedProduct
 from store import Store
 
 
@@ -41,15 +41,14 @@ def convert_order(store, product_list):
     :param store: store.py with class Store
     :param product_list: initial list of products
     """
-    numerate = 0
     print("\n")
     active_products = store.get_all_products()
     print("\nAvailable products:")
-    for product in active_products:
-        numerate += 1
-        print(f"\t{numerate}. {product}")
+    for id_nr, product in enumerate(active_products, 1): # start counting at 1
+        print(f"\t{id_nr}. {product}")
     print("\nWhen you want to finish order, enter empty text.")
-    shopping_list = []
+    shopping_cart = []
+
     while True:
         choice_product = input("Which product number do you want to buy? \n")
         if choice_product == "":
@@ -82,9 +81,12 @@ def convert_order(store, product_list):
 
         chosen_product = active_products[choice_product - 1]
         product_and_quantity = (chosen_product.name, choice_amount)
-        shopping_list.append(product_and_quantity)
-    if shopping_list:
-        order_summary = store.order(shopping_list)
+        shopping_cart.append(product_and_quantity)
+
+    if shopping_cart:
+        shopping_cart = store.add_shipping(shopping_cart, active_products)
+        order_summary = store.order(shopping_cart)
+
         print(order_summary)
     else:
         print("No items were added to your order")
@@ -96,10 +98,12 @@ def main():
     """
     product_list = [Product("MacBook Air M2", price=1450, quantity=100),
                     Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    Product("Google Pixel 7", price=500, quantity=250)
+                    Product("Google Pixel 7", price=500, quantity=250),
+                    #Product.NonStockedProduct("Windows License", price=125),
+                    LimitedProduct("Shipping cost", price=10)
                     ]
     best_buy = Store(product_list)
-    #start(best_buy, product_list) # Run the store to order products
+    start(best_buy, product_list) # Run the store to order products
 
 
 if __name__ == "__main__":

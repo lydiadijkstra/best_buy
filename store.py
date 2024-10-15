@@ -1,3 +1,5 @@
+from products import Product, NonStockedProduct, LimitedProduct
+
 
 class Store:
     """
@@ -71,6 +73,35 @@ class Store:
             print("No products listed")
         return active_products
 
+    @staticmethod
+    def add_shipping(shopping_cart, active_products):
+        """
+        Adds shipping cost to every order with at least 1 physical products, not excluding digital products
+        :param shopping_cart:
+        :return:
+        """
+        print("Current SC = ", shopping_cart)
+        has_physical_product = any(
+            any(product.name == item[0] and not isinstance(product, NonStockedProduct) for product in active_products)
+            for item in shopping_cart
+        )
+        print("Has physical product", has_physical_product)
+
+        if has_physical_product:
+            shipping_cost_in_cart = any(item[0] == "Shipping cost" for item in shopping_cart)
+
+            if not shipping_cost_in_cart:  # If shipping is not already in the cart
+                shipping_cost = LimitedProduct(name="Shipping cost", price=10)
+                shopping_cart.append((shipping_cost.name, 1))  # Add 1x shipping cost
+                print("Shipping added to cart", shopping_cart)
+            else:
+                # If shipping is already in the cart, set its quantity to 1 (ignoring user input)
+                shopping_cart = [(product_name, 1) if product_name == "Shipping cost" else (product_name, quantity)
+                                 for product_name, quantity in shopping_cart]
+                print("Shipping quantity set to 1", shopping_cart)
+
+        return shopping_cart
+
 
     def order(self, shopping_list):
         """
@@ -82,10 +113,16 @@ class Store:
         for product_name, quantity in shopping_list:
             for product in self.product_store:
                 if product.name == product_name:
-                    purchased_product = product.buy(quantity)
-                    if purchased_product is not None:
-                        total_cost_order += purchased_product[1]
+                    if isinstance(product, LimitedProduct) and product.name == "Shipping cost":
+                        total_cost_order += product.price
                     else:
-                        print(f"Could not complete purchase for {product.name}.")
-                    break
-        return f"Total amount: ${total_cost_order}"
+                        purchased_product = product.buy(quantity)
+                        if purchased_product is not None:
+                            total_cost_order += purchased_product[1]
+                        else:
+                            print(f"Could not complete purchase for {product.name}.")
+                        break
+
+        #if any(item[0] == "Shipping cost")
+        print(list(item for item in shopping_list))
+        return total_cost_order

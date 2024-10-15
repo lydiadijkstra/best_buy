@@ -70,16 +70,68 @@ class Product:
         print(f"{self.name}, Price: ${self.price}, Quantity: {self.quantity}")
 
 
-    def buy(self, quantity):
+    def buy(self, amount):
         """
         Check if product in stock, buy product and deduct buying-amount from stock
         :param quantity: buying quantity
         :return: buying quantity and total amount
         """
-        if quantity > self.quantity:
-            print(f"{self.name} requested: {quantity}. Available: {self.quantity}")
+        if amount > self.quantity:
+            print(f"Purchase not possible, {self.name} requested: {amount}. Available: {self.quantity}")
             return None
         else:
-            self.quantity -= quantity #deducts the buying quantity
-            total_purchase_amount = self.price * quantity
-            return quantity, total_purchase_amount
+            self.quantity -= amount #deducts the buying quantity
+            total_purchase_amount = self.price * amount
+            return amount, total_purchase_amount
+
+
+class NonStockedProduct(Product):
+    def __init__(self, name, price):
+        super().__init__(name, price, quantity=None)
+
+
+    def show(self):
+        """
+        Display details of a non-stocked product (e.g., digital product).
+        """
+        super().show()
+        print(f"{self.name} is a non-stocked product (digital or service).")
+
+
+class LimitedProduct(Product):
+    def __init__(self, name, price):
+        super().__init__(name, price, quantity=1)
+
+
+    def buy(self, amount=1):
+        """
+        Override the buy function for limited products like shipping.
+        Limited products can only be purchased once (quantity is always 1).
+        :return: tuple of (purchased amount, total purchase amount)
+        """
+        if amount > 1:
+            print(f"You can only purchase 1 {self.name}.")
+            return None
+        else:
+            return 1, self.price
+
+
+    def show(self):
+        """
+        Display details of a limited product.
+        """
+        super().show()
+        print(f"{self.name} is a limited product, available only in limited quantities.")
+
+
+class Promotion():
+    pass
+
+class SecondHalfPrice(Promotion):
+    pass
+
+class ThirdOneFree(Promotion):
+    pass
+
+class ThirtyPercent(Promotion):
+    pass
