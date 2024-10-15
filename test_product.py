@@ -1,6 +1,6 @@
 import pytest
 from main import main
-from products import Product
+from products import Product, NonStockedProduct, LimitedProduct, SecondHalfPrice, ThirdOneFree, ThirtyPercent
 from store import Store
 
 
@@ -41,7 +41,6 @@ def test_product_buy():
 
 # Test the functions in the store.py file
 
-"""
 def test_store_add_product():
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
                     Product("Bose QuietComfort Earbuds", price=250, quantity=500),
@@ -50,7 +49,7 @@ def test_store_add_product():
     product = Product(name="Test product", price=299, quantity=50)
     store.add_product(product)
     assert product in store.product_store
-"""
+
 
 def test_store_remove_product():
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
@@ -108,15 +107,16 @@ def test_store_order():
                    ])
 
     result = store.order([("MacBook Air M2", 2)])
-    assert result == "Total amount: $2900"
+    assert result == 2900  # Expect numeric total, not a formatted string
 
-    store.order([("MacBook Air M2", 98)]) # Buy total amount
+    store.order([("MacBook Air M2", 98)])  # Buy total amount
     products = store.get_all_products()
-    assert len(products) == 2 # Check if product was deactivated
+    assert len(products) == 2  # Check if product was deactivated
 
-    store.order([("Bose QuietComfort Earbuds", 600)])  # Buy total amount
+    store.order([("Bose QuietComfort Earbuds", 600)])  # Try buying more than available
     products = store.get_all_products()
     assert len(products) == 2  # Check if order was blocked, same amount of products
+
 
 
 def test_store_add_product():
@@ -165,3 +165,103 @@ def test_store_add_product():
                          Product("testproduct", price=1450, quantity=100)]
     assert len(products) == len(expected_products)
 
+
+def test_store_order_with_promotions():
+    """
+    Test ordering products with promotions applied (e.g., second half price, third one free).
+    """
+    store = Store([Product("MacBook Air M2", price=1450, quantity=100),
+                   Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                   Product("Google Pixel 7", price=500, quantity=250)])
+
+    # Apply promotions
+    promotion1 = SecondHalfPrice()
+    promotion2 = ThirdOneFree()
+    promotion3 = ThirtyPercent()
+
+    store.product_store[0].add_promotion(promotion1)  # MacBook Air gets second half price
+    store.product_store[1].add_promotion(promotion3)  # Earbuds get 30% off
+    store.product_store[2].add_promotion(promotion2)  # Pixel gets third one free
+
+    # Test promotion on MacBook Air
+    result = store.order([("MacBook Air M2", 2)])  # Second one should be half price
+    assert result == 1450 + (1450 * 0.5)  # 2nd MacBook is half price
+
+    # Test promotion on Bose QuietComfort Earbuds
+    result = store.order([("Bose QuietComfort Earbuds", 2)])  # 30% off
+    assert result == 250 * 2 * 0.7  # 30% off both
+
+    # Test promotion on Google Pixel 7
+    result = store.order([("Google Pixel 7", 3)])  # Third one should be free
+    assert result == 500 * 2  # 3rd Pixel is free
+
+
+def test_non_stocked_product_order():
+    """
+    Test ordering a non-stocked product (e.g., digital products).
+    """
+    store = Store([NonStockedProduct("Windows License", price=125)])
+
+    # Order 10 digital products
+    result = store.order([("Windows License", 10)])
+    assert result == 125 * 10  # No stock limit, price should match
+
+
+def test_shipping_added_for_physical_products():
+    """
+    Test that shipping is added when a physical product is present in the order.
+    """
+    store = Store([Product("MacBook Air M2", price=1450, quantity=100),
+                   NonStockedProduct("Windows License", price=125),
+                   LimitedProduct("Shipping cost", price=10)])
+
+    # Test with only digital product
+    result = store.order([("Windows License", 1)])
+    assert result == 125  # No shipping should be added
+
+
+def test_limited_product():
+    """
+    Test that LimitedProduct (e.g., shipping) can only be purchased once.
+    """
+    store = Store([LimitedProduct("Shipping cost", price=10)])
+
+    # Attempt to buy more than 1 shipping cost
+    result = store.order([("Shipping cost", 2)])
+    assert result == 10  # Only 1 shipping cost should be charged, ignoring extra quantity
+
+
+def test_product_deactivation_when_out_of_stock():
+    """
+    Test that a product is deactivated when its quantity reaches 0.
+    """
+    store = Store([Product("MacBook Air M2", price=1450, quantity=2)])
+
+    # Buy all products (should deactivate)
+    store.order([("MacBook Air M2", 2)])
+    products = store.get_all_products()
+    assert len(products) == 0  # MacBook Air should be deactivated
+
+def test_order_more_than_available_stock():
+    """
+    Test that ordering more than available stock is handled correctly.
+    """
+    store = Store([Product("MacBook Air M2", price=1450, quantity=5)])
+
+    # Try to order more than in stock
+    result = store.order([("MacBook Air M2", 10)])
+    assert result == 0  # Order should not proceed, no charge made
+
+
+def test_remove_promotion():
+    """
+    Test that removing a promotion reverts the product to its original price.
+    """
+    product = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
+    promotion = ThirtyPercent()
+
+    product.add_promotion(promotion)  # Add 30% off promotion
+    assert product.calculate_price(1) == 250 * 0.7
+
+    product.remove_promotion(promotion)  # Remove promotion
+    assert product.calculate_price(1) == 250  # Price should be full again

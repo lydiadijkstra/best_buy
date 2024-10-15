@@ -1,4 +1,4 @@
-from products import Product, NonStockedProduct, LimitedProduct
+from products import Product, NonStockedProduct, LimitedProduct, SecondHalfPrice, ThirdOneFree, ThirtyPercent
 from store import Store
 
 
@@ -99,9 +99,18 @@ def main():
     product_list = [Product("MacBook Air M2", price=1450, quantity=100),
                     Product("Bose QuietComfort Earbuds", price=250, quantity=500),
                     Product("Google Pixel 7", price=500, quantity=250),
-                    #Product.NonStockedProduct("Windows License", price=125),
+                    NonStockedProduct("Windows License", price=125),
                     LimitedProduct("Shipping cost", price=10)
                     ]
+
+    promotion1 = SecondHalfPrice()
+    promotion2 = ThirdOneFree()
+    promotion3 = ThirtyPercent()
+
+    product_list[0].add_promotion(promotion1)  # MacBook Air gets second half price
+    product_list[1].add_promotion(promotion3)  # Earbuds get 30% off
+    product_list[2].add_promotion(promotion2)  # Pixel gets third one free
+
     best_buy = Store(product_list)
     start(best_buy, product_list) # Run the store to order products
 

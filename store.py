@@ -47,15 +47,15 @@ class Store:
                 self.product_store.remove(product)
                 return self.product_store
 
-
     def get_total_quantity(self):
         """
-        Calculates and display total amount of items in the store
+        Calculates and display total amount of items in the store, excluding non-stocked products.
         :return: total amount of items
         """
         total_quantity = 0
         for product in self.product_store:
-            total_quantity += product.quantity
+            if product.quantity is not None:  # Exclude non-stocked products
+                total_quantity += product.quantity
         return f"Total of {total_quantity} items in store"
 
 
