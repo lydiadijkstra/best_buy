@@ -1,5 +1,7 @@
+from abc import ABC
 
-class Product:
+
+class Product(ABC):
     """
     Represents a product in the store
     """
@@ -53,6 +55,7 @@ class Product:
         self.quantity = 0 # Set quantity to 0 after deactivating
         return True
 
+
     def is_active(self):
         """
         Check if product is in stock and set to active.
@@ -73,23 +76,36 @@ class Product:
 
 
     def add_promotion(self, promotion):
-        """Add a promotion to the product."""
+        """
+        Add a promotion to the product.
+        """
         if promotion not in self.promotions:
             self.promotions.append(promotion)
 
     def remove_promotion(self, promotion):
-        """Remove a promotion from the product."""
+        """R
+        emove a promotion from the product
+        """
         if promotion in self.promotions:
             self.promotions.remove(promotion)
 
+
     def calculate_price(self, quantity):
-        """Calculate the price after applying all promotions."""
+        """
+        Calculate the price after applying all promotions
+        :return: total price
+        """
         final_price = quantity * self.price
         for promotion in self.promotions:
             final_price = promotion.apply_promotion(self, quantity)
         return final_price
 
+
     def buy(self, quantity):
+        """
+        Checks stock vs amount, substracts the amount from stock
+        :return: quantity, total amount
+        """
         if quantity > self.quantity:
             print(f"Purchase not possible, {self.name} requested: {quantity}. Available: {self.quantity}")
             return None
@@ -99,22 +115,9 @@ class Product:
             return quantity, total_purchase_amount
 
 
-    # def buy(self, amount):
-    #     """
-    #     Check if product in stock, buy product and deduct buying-amount from stock
-    #     :param quantity: buying quantity
-    #     :return: buying quantity and total amount
-    #     """
-    #     if amount > self.quantity:
-    #         print(f"Purchase not possible, {self.name} requested: {amount}. Available: {self.quantity}")
-    #         return None
-    #     else:
-    #         self.quantity -= amount #deducts the buying quantity
-    #         total_purchase_amount = self.price * amount
-    #         return amount, total_purchase_amount
-
 
 class NonStockedProduct(Product):
+    """Digitial Products which need no stock amount"""
     def __init__(self, name, price):
         super().__init__(name, price, quantity=None)  # quantity is None for non-stocked products
 
@@ -135,8 +138,8 @@ class NonStockedProduct(Product):
         print(f"{self.name} is a non-stocked product (digital or service).")
 
 
-
 class LimitedProduct(Product):
+    """Handles the limited products such as shipping = max 1 in shoppingcart"""
     def __init__(self, name, price):
         super().__init__(name, price, quantity=1)
 
@@ -166,8 +169,10 @@ class LimitedProduct(Product):
 
 
 class Promotion:
+    """Handles the different promos for the products"""
     def __init__(self, name):
         self.name = name
+
 
     def apply_promotion(self, product, quantity):
         """
@@ -180,30 +185,52 @@ class Promotion:
 
 
 class SecondHalfPrice(Promotion):
+    """Handles the promo second item 50% off"""
     def __init__(self):
         super().__init__("Second Half Price")
 
+
     def apply_promotion(self, product, quantity):
-        # Every second item is half-price
+        """
+    Applies the 'Second Half Price' promotion to the given product.
+    :param product: The product to which the promotion is applied.
+                    Must have a price attribute representing the full price per unit.
+    :param quantity: The number of units the customer is purchasing.
+    :return: The total cost after applying the promotion.
+    """
         full_price_items = quantity // 2 + quantity % 2
         half_price_items = quantity // 2
         return (full_price_items * product.price) + (half_price_items * product.price * 0.5)
 
 
 class ThirdOneFree(Promotion):
+    """Handles the promo Third item for free"""
     def __init__(self):
         super().__init__("Third One Free")
 
     def apply_promotion(self, product, quantity):
-        # Every third item is free
+        """
+           Applies the 'Third one for free' promotion to the given product.
+           :param product: The product to which the promotion is applied.
+                           Must have a price attribute representing the full price per unit.
+           :param quantity: The number of units the customer is purchasing.
+           :return: The total cost after applying the promotion.
+           """
         full_price_items = quantity - (quantity // 3)
         return full_price_items * product.price
 
 
 class ThirtyPercent(Promotion):
+    """Handles the promo thirty percent offf"""
     def __init__(self):
         super().__init__("30% Off")
 
     def apply_promotion(self, product, quantity):
-        # Apply 30% discount
+        """
+           Applies the 'Second Half Price' promotion to the given product.
+           :param product: The product to which the promotion is applied.
+                           Must have a price attribute representing the full price per unit.
+           :param quantity: The number of units the customer is purchasing.
+           :return: The total cost after applying the promotion.
+           """
         return quantity * product.price * 0.7

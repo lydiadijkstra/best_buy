@@ -1,4 +1,4 @@
-from products import Product, NonStockedProduct, LimitedProduct
+from products import NonStockedProduct, LimitedProduct
 
 
 class Store:
@@ -47,6 +47,7 @@ class Store:
                 self.product_store.remove(product)
                 return self.product_store
 
+
     def get_total_quantity(self):
         """
         Calculates and display total amount of items in the store, excluding non-stocked products.
@@ -73,23 +74,21 @@ class Store:
             print("No products listed")
         return active_products
 
+
     @staticmethod
     def add_shipping(shopping_cart, active_products):
         """
-        Adds shipping cost to every order with at least 1 physical products, not excluding digital products
+        Adds shipping cost to every order with at least 1 physical products, not excluding digital products.
+        Static because no use of self-attributes.
         :param shopping_cart:
         :return:
         """
-        print("Current SC = ", shopping_cart)
         has_physical_product = any(
             any(product.name == item[0] and not isinstance(product, NonStockedProduct) for product in active_products)
             for item in shopping_cart
         )
-        print("Has physical product", has_physical_product)
-
         if has_physical_product:
             shipping_cost_in_cart = any(item[0] == "Shipping cost" for item in shopping_cart)
-
             if not shipping_cost_in_cart:  # If shipping is not already in the cart
                 shipping_cost = LimitedProduct(name="Shipping cost", price=10)
                 shopping_cart.append((shipping_cost.name, 1))  # Add 1x shipping cost
@@ -98,31 +97,36 @@ class Store:
                 # If shipping is already in the cart, set its quantity to 1 (ignoring user input)
                 shopping_cart = [(product_name, 1) if product_name == "Shipping cost" else (product_name, quantity)
                                  for product_name, quantity in shopping_cart]
-                print("Shipping quantity set to 1", shopping_cart)
-
         return shopping_cart
 
 
     def order(self, shopping_list):
         """
-        Calculates the total amount of the ordered items
+        Calculates the total amount of the ordered items.
         :param shopping_list: list of items which user want to buy
         :return: total price for order
         """
         total_cost_order = 0
+        successful_purchase = False  # Track if any product purchase is successful
+        valid_cart_items = []  # Collect valid items for the final cart
+
         for product_name, quantity in shopping_list:
             for product in self.product_store:
                 if product.name == product_name:
                     if isinstance(product, LimitedProduct) and product.name == "Shipping cost":
-                        total_cost_order += product.price
+                        # Only add shipping cost if there's a successful purchase of physical product
+                        if successful_purchase:
+                            total_cost_order += product.price
+                            valid_cart_items.append((product_name, 1))  # Add shipping to valid items
                     else:
                         purchased_product = product.buy(quantity)
                         if purchased_product is not None:
                             total_cost_order += purchased_product[1]
+                            successful_purchase = True  # Mark that purchase was successful
+                            valid_cart_items.append((product_name, purchased_product[0]))  # Add valid product
                         else:
                             print(f"Could not complete purchase for {product.name}.")
-                        break
-
-        #if any(item[0] == "Shipping cost")
-        print(list(item for item in shopping_list))
+                    break
+        for product_name, quantity in valid_cart_items:
+            print(f"{quantity}x - {product_name}")
         return total_cost_order

@@ -1,13 +1,13 @@
-import pytest
-from main import main
 from products import Product, NonStockedProduct, LimitedProduct, SecondHalfPrice, ThirdOneFree, ThirtyPercent
 from store import Store
 
 
 # Test the functions in the products.py file
 
-
 def test_product_get_quantity():
+    """
+    Tests the get quantity function if it works correct
+    """
     product = Product(name="MacBook Air M2", price=1450, quantity=100)
     product2 = Product(name="MacBook Air M2", price=1450, quantity=0)
     product3 = Product(name="MacBook Air M2", price=1450, quantity=-40)
@@ -22,6 +22,9 @@ def test_product_get_quantity():
 
 
 def test_product_set_quantity():
+    """
+    Tests the set quantity function if it works correct
+    """
     product = Product(name="MacBook Air M2", price=1450, quantity=100)
 
     product.set_quantity(50)
@@ -33,6 +36,9 @@ def test_product_set_quantity():
 
 
 def test_product_buy():
+    """
+    Tests the buy function if it works correct
+    """
     product = Product(name="MacBook Air M2", price=1450, quantity=100)
 
     assert product.buy(20) == (20, 29000)  # Expecting (quantity bought, total cost)
@@ -42,6 +48,9 @@ def test_product_buy():
 # Test the functions in the store.py file
 
 def test_store_add_product():
+    """
+    Tests if the function adds products correctly
+    """
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
                     Product("Bose QuietComfort Earbuds", price=250, quantity=500),
                     Product("Google Pixel 7", price=500, quantity=250)
@@ -52,6 +61,9 @@ def test_store_add_product():
 
 
 def test_store_remove_product():
+    """
+    Tests if the function removes a product
+    """
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
                    Product("Google Pixel 7", price=500, quantity=250)
@@ -65,6 +77,9 @@ def test_store_remove_product():
 
 
 def test_store_get_total_quantity():
+    """
+    Tests the get quantity function if it works correct
+    """
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
                    Product("Google Pixel 7", price=500, quantity=250)
@@ -78,6 +93,9 @@ def test_store_get_total_quantity():
 
 
 def test_store_get_all_products():
+    """
+    Testing the get all products function
+    """
     store = Store([Product("MacBook Air M2", price=1450, quantity=100),
                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
                    Product("Google Pixel 7", price=500, quantity=250)

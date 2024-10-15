@@ -87,7 +87,7 @@ def convert_order(store, product_list):
         shopping_cart = store.add_shipping(shopping_cart, active_products)
         order_summary = store.order(shopping_cart)
 
-        print(order_summary)
+        print(f"Total order amount: {order_summary}")
     else:
         print("No items were added to your order")
 
